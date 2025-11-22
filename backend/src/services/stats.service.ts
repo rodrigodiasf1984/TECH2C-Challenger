@@ -1,19 +1,4 @@
-import { Company } from '../types'
-
-interface IndicatorsStats {
-  totalCo2PerYear: {
-    year: number
-    totalEmissions: number
-  }[]
-  avgEnergyPerCompany: {
-    company: string
-    avgEnergy: number
-  }[]
-  top5HighEmitters: {
-    company: string
-    totalCo2: number
-  }[]
-}
+import { Company, IndicatorsStats } from '../types'
 
 export const calculateIndicators = (data: Company[]): IndicatorsStats => {
   const yearGroups: Record<number, number> = {}
