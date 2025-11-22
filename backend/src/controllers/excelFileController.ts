@@ -2,8 +2,14 @@ import { Request, Response } from 'express'
 import fs from 'fs'
 import { parseExcelBuffer } from '../services/excelService'
 import { calculateIndicators } from '../services/stats.service'
+import { UploadResponse } from '../types'
 
-export const handleUploadExcelFile = async (req: Request, res: Response) => {
+type ErrorResponse = { error: string }
+
+export const handleUploadExcelFile = async (
+  req: Request,
+  res: Response<UploadResponse | ErrorResponse>
+): Promise<Response> => {
   try {
     if (!req.file) return res.status(400).json({ error: 'File not sent' })
     const filePath = req.file.path
@@ -13,7 +19,7 @@ export const handleUploadExcelFile = async (req: Request, res: Response) => {
     fs.unlinkSync(filePath)
     return res.json({
       message: 'File processed',
-      stats: indicators
+      indicators: indicators
     })
   } catch (error) {
     console.log('upload error:', error)
