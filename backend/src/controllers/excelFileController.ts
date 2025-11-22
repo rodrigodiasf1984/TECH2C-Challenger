@@ -1,14 +1,20 @@
 import { Request, Response } from 'express'
 import fs from 'fs'
+import { parseExcelBuffer } from '../services/excelService'
+import { calculateIndicators } from '../services/stats.service'
 
 export const handleUploadExcelFile = async (req: Request, res: Response) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'File not sent' })
     const filePath = req.file.path
-    console.log('filePath', filePath)
     const buffer = fs.readFileSync(filePath)
-    console.log('buffer', buffer)
-    return res.json({ message: 'File saved' })
+    const fileData = await parseExcelBuffer(buffer)
+    const indicators = calculateIndicators(fileData)
+    fs.unlinkSync(filePath)
+    return res.json({
+      message: 'File processed',
+      stats: indicators
+    })
   } catch (error) {
     console.log('upload error:', error)
     return res.status(500).json({ error: 'Error while processing the file' })
