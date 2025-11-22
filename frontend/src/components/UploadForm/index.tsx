@@ -1,0 +1,116 @@
+import type { UploadResponse } from "../../types";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import clsx from "clsx";
+import {
+  CheckCircle,
+  FileSpreadsheet,
+  Loader2,
+  UploadCloud,
+} from "lucide-react";
+import { useState } from "react";
+import { UploadFile } from "../../services/api";
+import { schema, type FormData } from "./schema";
+
+interface UploadFormProps {
+  onUploadSuccess: (data: UploadResponse) => void;
+}
+
+export function UploadForm({ onUploadSuccess }: UploadFormProps) {
+  const [isLoading, setLoading] = useState(false);
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = form;
+
+  const selectedFile = useWatch({
+    control,
+    name: "file",
+  }) as FileList | undefined;
+
+  const hasFile = selectedFile && selectedFile.length > 0;
+
+  const onSubmit = async (data: FormData) => {
+    setLoading(true);
+
+    const response = await UploadFile(data.file[0]);
+
+    onUploadSuccess(response);
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="2w-full max-w-lg mx-auto"
+    >
+      <div
+        className={clsx(
+          "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ease-in-out",
+          errors
+            ? "border-red-300 bg-red-50"
+            : hasFile
+            ? "border-green-300 bg-green-50"
+            : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+        )}
+      >
+        <input
+          {...register("file")}
+          type="file"
+          accept=".xls, xlsx"
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        />
+
+        <div className="flex flex-col items-center justify-center space-y-3">
+          {hasFile ? (
+            <>
+              <FileSpreadsheet className="w-12 h-12 text-gray-400" />
+              <div className="text-sm font-medium text-gray-800">
+                {selectedFile[0].name}
+              </div>
+            </>
+          ) : (
+            <>
+              <UploadCloud className="w-12 h-12 text-gray-400" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-gray-700">
+                  drop the file or click here to upload the file
+                </p>
+                <p className="text-xs text-gray-500">
+                  Only .xls and .xlsx files are supported
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {errors.file && (
+        <p className="mt-2 text-sm text-red-600 text-center animate-pulse">
+          {errors.file.message}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={isLoading || !hasFile}
+        className="mt-6 w-full flex justify-center items-center gap-2 py-2.5  px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="animate-spin h-5 w-5" />
+            Processing the file...
+          </>
+        ) : (
+          <>
+            <CheckCircle className="h-5 w-5" />
+            Send File
+          </>
+        )}
+      </button>
+    </form>
+  );
+}
