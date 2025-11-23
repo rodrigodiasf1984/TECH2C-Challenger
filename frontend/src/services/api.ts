@@ -1,11 +1,10 @@
 import axios, { AxiosError } from "axios";
 import type { UploadResponse } from "../types";
-
-const baseURL = "http://localhost:3333/api";
-
 interface BackendError {
   error: string;
 }
+
+const baseURL = import.meta.env.VITE_BASE_URL;
 
 const api = axios.create({
   baseURL,
