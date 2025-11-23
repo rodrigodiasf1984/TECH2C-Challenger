@@ -18,6 +18,7 @@ interface UploadFormProps {
 
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [isLoading, setLoading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
   });
@@ -39,9 +40,21 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
 
-    const response = await UploadFile(data.file[0]);
+    try {
+      const response = await UploadFile(data.file[0]);
+      onUploadSuccess(response);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      let errorMessage = "An error occurred.";
 
-    onUploadSuccess(response);
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      setUploadError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,7 +65,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       <div
         className={clsx(
           "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ease-in-out",
-          errors
+          errors.file || uploadError
             ? "border-red-300 bg-red-50"
             : hasFile
             ? "border-green-300 bg-green-50"
@@ -93,6 +106,11 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         <p className="mt-2 text-sm text-red-600 text-center animate-pulse">
           {errors.file.message}
         </p>
+      )}
+      {uploadError && (
+        <div className="mt-4 p-3 bg-red-100 border border-red-400 rounded-lg text-sm text-red-700 text-center animate-pulse">
+          {uploadError}
+        </div>
       )}
       <button
         type="submit"

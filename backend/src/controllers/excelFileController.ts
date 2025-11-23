@@ -23,6 +23,10 @@ export const handleUploadExcelFile = async (
     });
   } catch (error) {
     console.log("upload error:", error);
-    return res.status(500).json({ error: "Error while processing the file" });
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Error while processing the file.";
+    return res.status(400).json({ error: errorMessage });
   }
 };
