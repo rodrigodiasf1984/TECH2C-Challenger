@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  backend:
+    container_name: challenger_backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: final
+    ports:
+      - "3333:3333"
+    environment:
+      PORT: 3333
+  frontend:
+    container_name: challenger_frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: final
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      VITE_BASE_URL: http://backend:3333/api
