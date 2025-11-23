@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import fs from "fs";
-import { parseExcelBuffer } from "../services/excelService";
-import { calculateIndicators } from "../services/statsService";
-import { UploadResponse } from "../types";
+import { parseExcelBuffer } from "../../services/excelService";
+import { calculateIndicators } from "../../services/statsService";
+import { UploadResponse } from "../../types";
 
 type ErrorResponse = { error: string };
 
