@@ -1,113 +1,157 @@
 import { parseExcelBuffer } from "..";
-import { Company } from "../../../types";
+import { EXPECTED_HEADERS } from "../../../constants";
+
+const MOCK_EXPECTED_HEADERS = [
+  "Empresa",
+  "Ano",
+  "Setor",
+  "Consumo de Energia",
+  "Emissões de CO2 (toneladas)",
+];
+
+jest.mock("../../../constants", () => ({
+  EXPECTED_HEADERS: [
+    "Empresa",
+    "Ano",
+    "Setor",
+    "Consumo de Energia",
+    "Emissões de CO2 (toneladas)",
+  ],
+}));
+
+const mockGetRow = jest.fn();
+const mockEachRow = jest.fn();
+const mockGetWorksheet = jest.fn();
+const mockLoad = jest.fn();
 
 jest.mock("exceljs", () => {
-  const mockEachRow = jest.fn((callback) => {
-    callback({ getCell: () => ({ text: "Header" }) }, 1);
-    callback(
-      {
-        getCell: (col: number) => {
-          switch (col) {
-            case 1:
-              return { text: "Comp A" };
-            case 2:
-              return { value: 2022 };
-            case 3:
-              return { text: "Tech" };
-            case 4:
-              return { value: 100 };
-            case 5:
-              return { value: 50 };
-            default:
-              return { text: "" };
-          }
-        },
-      },
-      2
-    );
-
-    callback(
-      {
-        getCell: (col: number) => {
-          switch (col) {
-            case 1:
-              return { text: "Comp B" };
-            case 2:
-              return { value: 2023 };
-            case 3:
-              return { text: "Energy" };
-            case 4:
-              return { value: 200.5 };
-            case 5:
-              return { value: 150.7 };
-            default:
-              return { text: "" };
-          }
-        },
-      },
-      3
-    );
-  });
-
   return {
-    Workbook: jest.fn(() => ({
+    Workbook: jest.fn().mockImplementation(() => ({
       xlsx: {
-        load: jest.fn(),
+        load: mockLoad,
       },
-      getWorksheet: jest.fn((index) => {
-        if (index === 1) {
-          return {
-            eachRow: mockEachRow,
-          };
-        }
-        return undefined;
-      }),
+      getWorksheet: mockGetWorksheet,
     })),
   };
 });
 
 describe("excelService", () => {
-  const mockBuffer = Buffer.from("dummy-excel-data");
-
-  const expectedCompanies: Company[] = [
-    {
-      name: "Comp A",
-      year: 2022,
-      sector: "Tech",
-      energy_consumption: 100,
-      co2_emissions: 50,
-    },
-    {
-      name: "Comp B",
-      year: 2023,
-      sector: "Energy",
-      energy_consumption: 200.5,
-      co2_emissions: 150.7,
-    },
-  ];
-
-  it("should correctly parse the Excel buffer and return company data", async () => {
-    const result = await parseExcelBuffer(mockBuffer);
-
-    expect(result).toHaveLength(2);
-    expect(result).toEqual(expectedCompanies);
-
-    const ExcelJSMock = require("exceljs").Workbook;
-    const workbookInstance = ExcelJSMock.mock.results[0].value;
-    const worksheetInstance = workbookInstance.getWorksheet(1);
-
-    expect(worksheetInstance.eachRow).toHaveBeenCalled();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("should return an empty array if the worksheet is not found", async () => {
-    const ExcelJSMock = require("exceljs").Workbook;
-    ExcelJSMock.mockImplementationOnce(() => ({
-      xlsx: { load: jest.fn() },
-      getWorksheet: jest.fn(() => undefined),
-    }));
+  it("should correctly parse the Excel buffer and return company data", async () => {
+    mockGetRow.mockImplementation((rowNumber) => {
+      if (rowNumber === 1) {
+        return {
+          getCell: (index: number) => ({
+            text: MOCK_EXPECTED_HEADERS[index - 1],
+          }),
+        };
+      }
+    });
 
-    const result = await parseExcelBuffer(mockBuffer);
+    mockEachRow.mockImplementation((callback) => {
+      callback(
+        {
+          getCell: (idx: number) => ({ text: MOCK_EXPECTED_HEADERS[idx - 1] }),
+        },
+        1
+      );
+      callback(
+        {
+          getCell: (col: number) => {
+            const cells: any = {
+              1: { text: "Company A" },
+              2: { value: 2023 },
+              3: { text: "Tech" },
+              4: { value: 1000 },
+              5: { value: 500 },
+            };
+            return cells[col] || { text: "" };
+          },
+        },
+        2
+      );
+    });
 
-    expect(result).toEqual([]);
+    mockGetWorksheet.mockReturnValue({
+      getRow: mockGetRow,
+      eachRow: mockEachRow,
+    });
+
+    const buffer = Buffer.from("dummy");
+    const result = await parseExcelBuffer(buffer);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual({
+      name: "Company A",
+      year: 2023,
+      sector: "Tech",
+      energy_consumption: 1000,
+      co2_emissions: 500,
+    });
+    expect(mockGetRow).toHaveBeenCalledWith(1);
+  });
+
+  it("should throw error if the worksheet is not found", async () => {
+    mockGetWorksheet.mockReturnValue(undefined);
+    const buffer = Buffer.from("dummy");
+    await expect(parseExcelBuffer(buffer)).rejects.toThrow(
+      "Worksheet not found"
+    );
+  });
+
+  it("should throw error if headers are invalid", async () => {
+    mockGetRow.mockImplementation((rowNumber) => {
+      if (rowNumber === 1) {
+        return {
+          getCell: (index: number) => ({
+            text:
+              index === 1 ? "Wrong Header" : MOCK_EXPECTED_HEADERS[index - 1],
+          }),
+        };
+      }
+    });
+
+    mockGetWorksheet.mockReturnValue({
+      getRow: mockGetRow,
+      eachRow: mockEachRow,
+    });
+
+    const buffer = Buffer.from("dummy");
+
+    await expect(parseExcelBuffer(buffer)).rejects.toThrow(/Invalid headers/);
+  });
+
+  it("should throw error if file contains only headers (no data rows)", async () => {
+    mockGetRow.mockImplementation((rowNumber) => {
+      if (rowNumber === 1) {
+        return {
+          getCell: (index: number) => ({
+            text: MOCK_EXPECTED_HEADERS[index - 1],
+          }),
+        };
+      }
+    });
+
+    mockEachRow.mockImplementation((callback) => {
+      callback(
+        {
+          getCell: (idx: number) => ({ text: MOCK_EXPECTED_HEADERS[idx - 1] }),
+        },
+        1
+      );
+    });
+
+    mockGetWorksheet.mockReturnValue({
+      getRow: mockGetRow,
+      eachRow: mockEachRow,
+    });
+
+    const buffer = Buffer.from("dummy");
+
+    await expect(parseExcelBuffer(buffer)).rejects.toThrow(
+      "File only contains headers or no valid data rows."
+    );
   });
 });
