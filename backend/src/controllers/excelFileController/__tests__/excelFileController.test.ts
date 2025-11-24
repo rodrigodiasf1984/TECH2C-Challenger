@@ -8,6 +8,8 @@ jest.mock("fs");
 jest.mock("../../../services/excelService");
 jest.mock("../../../services/statsService");
 
+const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
 describe("ExcelFileController", () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
@@ -16,6 +18,7 @@ describe("ExcelFileController", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    logSpy.mockClear();
 
     jsonMock = jest.fn();
     statusMock = jest.fn().mockReturnValue({ json: jsonMock });
@@ -24,6 +27,10 @@ describe("ExcelFileController", () => {
       status: statusMock,
       json: jsonMock,
     } as unknown as Response;
+  });
+
+  afterAll(() => {
+    logSpy.mockRestore();
   });
 
   it("should return 400 if no file is sent", async () => {

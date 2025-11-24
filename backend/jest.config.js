@@ -8,4 +8,16 @@ module.exports = {
   },
   testPathIgnorePatterns: ["/node_modules/", "/dist/"],
   clearMocks: true,
+  collectCoverage: true,
+  collectCoverageFrom: [
+    "src/**/*.ts",
+    "!src/**/__tests__/**", // Exclui arquivos de teste do relatório
+    "!src/app.ts", // Exclui arquivos que não precisam de testes de unidade
+    "!src/server.ts",
+    "!src/config/**",
+    "!src/types.ts",
+    // Adicione outras exclusões conforme necessário
+  ],
+  coverageDirectory: "coverage",
+  coverageReporters: ["json", "lcov", "text", "clover"],
 };

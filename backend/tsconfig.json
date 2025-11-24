@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "nodenext",
+    "isolatedModules": true,
     "esModuleInterop": true,
     "sourceMap": true,
     "outDir": "./dist",
