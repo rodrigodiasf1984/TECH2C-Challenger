@@ -8,7 +8,7 @@ import {
   Loader2,
   UploadCloud,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UploadFile } from "../../services/api";
 import { schema, type FormData } from "./schema";
 
@@ -18,9 +18,10 @@ interface UploadFormProps {
 
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [isLoading, setLoading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [backendError, setBackendError] = useState<string | null>(null);
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
+    mode: "onChange",
   });
 
   const {
@@ -28,6 +29,8 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     handleSubmit,
     formState: { errors },
     control,
+    clearErrors,
+    reset,
   } = form;
 
   const selectedFile = useWatch({
@@ -37,8 +40,21 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
 
   const hasFile = selectedFile && selectedFile.length > 0;
 
+  useEffect(() => {
+    if (hasFile) {
+      if (backendError) {
+        setBackendError(null);
+      }
+      if (errors.file) {
+        clearErrors("file");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasFile]);
+
   const onSubmit = async (data: FormData) => {
     setLoading(true);
+    setBackendError(null);
 
     try {
       const response = await UploadFile(data.file[0]);
@@ -50,12 +66,15 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-
-      setUploadError(errorMessage);
+      setBackendError(errorMessage);
+      reset({ file: undefined }, { keepErrors: false });
     } finally {
       setLoading(false);
     }
   };
+
+  const isErrorState = errors.file || backendError;
+  const isDisabled = isLoading || !hasFile || !!errors.file;
 
   return (
     <form
@@ -66,7 +85,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
       <div
         className={clsx(
           "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ease-in-out",
-          errors.file || uploadError
+          isErrorState
             ? "border-red-300 bg-red-50"
             : hasFile
             ? "border-green-300 bg-green-50"
@@ -77,7 +96,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
           data-testid="file-input"
           {...register("file")}
           type="file"
-          accept=".xls, xlsx"
+          accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
 
@@ -94,7 +113,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               <UploadCloud className="w-12 h-12 text-gray-400" />
               <div className="space-y-1">
                 <p className="text-sm font-medium text-gray-700">
-                  drop the file or click here to upload the file
+                  **drop the file or click here to upload the file**
                 </p>
                 <p className="text-xs text-gray-500">
                   Only .xls and .xlsx files are supported
@@ -109,15 +128,15 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
           {errors.file.message}
         </p>
       )}
-      {uploadError && (
+      {backendError && (
         <div className="mt-4 p-3 bg-red-100 border border-red-400 rounded-lg text-sm text-red-700 text-center animate-pulse">
-          {uploadError}
+          {backendError}
         </div>
       )}
       <button
         type="submit"
-        disabled={isLoading || !hasFile}
-        className="mt-6 w-full flex justify-center items-center gap-2 py-2.5  px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        disabled={isDisabled}
+        className="mt-6 w-full flex justify-center items-center gap-2 py-2.5  px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {isLoading ? (
           <>
