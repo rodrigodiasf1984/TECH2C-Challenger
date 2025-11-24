@@ -44,7 +44,18 @@ The dashboard will be accessible via your browser, usually at http://localhost:5
 <img width="1904" height="926" alt="image" src="https://github.com/user-attachments/assets/98337fb0-156c-40cf-bf6c-02a94b4c5461" />
 <img width="1890" height="602" alt="image" src="https://github.com/user-attachments/assets/94471f7e-7163-4d9e-bfa7-a13fff0da1e7" />
 
+You can also use Docker. In the root of the project, run the first script: 
 
+```bash
+# 1. Build images, create the container and run them.
+docker compose up --build -d
+```
+When Docker is running the containers, open your browser and navigate to http://localhost/
+
+```bash
+# 2. Stop the execution of the containers, but keep the images
+docker compose stop
+```
 
 
 ### 3. Usage
@@ -76,7 +87,7 @@ This approach ensures the Front-end receives clean, ready-to-display JSON data, 
 
 Client Visualization: The Front-end consumes the pre-calculated data and passes it directly to the Recharts library for immediate rendering.
 
-### 5. Chosen Tech Stack and RationaleTechnologyRationale
+### 5. Chosen Tech Stack and Rationale Technology
 * Vite.js was selected over frameworks like Next.js because this is a single-page application (SPA) dashboard. Vite offers superior DX (Developer Experience), ultra-fast builds, and immediate Hot Module Replacement, without the overhead of Server Side Rendering (SSR), which is unnecessary for an application behind a login.
 
 * React + TypeScript is the industry standard for component-based UIs. TypeScript is crucial for maintaining data integrity and catching errors early, essential when dealing with external API contracts and data schemas.
