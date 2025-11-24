@@ -74,6 +74,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         )}
       >
         <input
+          data-testid="file-input"
           {...register("file")}
           type="file"
           accept=".xls, xlsx"
