@@ -17,3 +17,7 @@ export interface UploadResponse {
   message: string;
   indicators: IndicatorsStats;
 }
+
+export interface BackendError {
+  error: string;
+}
