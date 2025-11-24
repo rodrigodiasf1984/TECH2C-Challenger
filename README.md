@@ -66,11 +66,16 @@ docker compose stop
 # 1. open the backend folder and run.
 npm run test
 ```
+<img width="1304" height="631" alt="image" src="https://github.com/user-attachments/assets/6ad62d04-5ab0-4f6d-8b0b-c7a1880be67c" />
+
+
 
 ```bash
 # 1. open the frontend folder and run.
 npm run test
 ```
+<img width="965" height="778" alt="image" src="https://github.com/user-attachments/assets/31910a0e-2198-456a-bdfe-f9fcba1952c6" />
+
 
 ### 4. Usage
 
