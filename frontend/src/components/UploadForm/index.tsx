@@ -59,6 +59,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
 
   return (
     <form
+      data-testid="upload-form"
       onSubmit={handleSubmit(onSubmit)}
       className="2w-full max-w-lg mx-auto"
     >

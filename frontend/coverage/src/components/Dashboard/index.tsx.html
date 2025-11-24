@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -230,13 +230,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -311,9 +313,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -355,9 +357,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -389,15 +389,15 @@
 import { Zap, Factory } from "lucide-react";
 import type { IndicatorsStats } from "../../types";
 &nbsp;
-const COLORS = <span class="cstat-no" title="statement not covered" >["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"];</span>
+const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"];
 &nbsp;
-export const Dashboard = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span></span>
+export const Dashboard = ({
   avgEnergyPerCompany,
   top5HighEmitters,
   totalCo2PerYear,
 }: IndicatorsStats) =&gt; {
   return (
-    &lt;div className="space-y-8 animate-fade-in-up"&gt;
+    &lt;div data-testid="dashboard" className="space-y-8 animate-fade-in-up"&gt;
       &lt;div className="grid grid-cols-1 md:grid-cols-2 gap-6"&gt;
         &lt;div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"&gt;
           &lt;div className="flex items-center gap-2 mb-6"&gt;
@@ -467,8 +467,8 @@ export const Dashboard = <span class="cstat-no" title="statement not covered" ><
                   dataKey="totalCo2"
                   nameKey="company"
                 &gt;
-                  {top5HighEmitters.map(<span class="fstat-no" title="function not covered" >(_</span>, index) =&gt; (
-<span class="cstat-no" title="statement not covered" >                    &lt;Cell</span>
+                  {top5HighEmitters.map((_, index) =&gt; (
+                    &lt;Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
                       stroke="none"
@@ -511,8 +511,8 @@ export const Dashboard = <span class="cstat-no" title="statement not covered" ><
               &lt;/tr&gt;
             &lt;/thead&gt;
             &lt;tbody className="divide-y divide-gray-100"&gt;
-              {avgEnergyPerCompany.slice(0, 8).map(<span class="fstat-no" title="function not covered" >(r</span>ow, idx) =&gt; (
-<span class="cstat-no" title="statement not covered" >                &lt;tr key={idx} c</span>lassName="hover:bg-gray-50 transition-colors"&gt;
+              {avgEnergyPerCompany.slice(0, 8).map((row, idx) =&gt; (
+                &lt;tr key={idx} className="hover:bg-gray-50 transition-colors"&gt;
                   &lt;td className="px-6 py-4 font-medium text-gray-900"&gt;
                     {row.company}
                   &lt;/td&gt;
@@ -535,7 +535,7 @@ export const Dashboard = <span class="cstat-no" title="statement not covered" ><
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-24T10:52:36.791Z
+                at 2025-11-24T11:21:32.780Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

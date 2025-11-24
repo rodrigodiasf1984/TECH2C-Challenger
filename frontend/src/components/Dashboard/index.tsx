@@ -22,7 +22,7 @@ export const Dashboard = ({
   totalCo2PerYear,
 }: IndicatorsStats) => {
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div data-testid="dashboard" className="space-y-8 animate-fade-in-up">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-6">
